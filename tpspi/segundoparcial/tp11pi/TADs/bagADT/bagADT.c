@@ -27,6 +27,8 @@ bagADT newBag(compare cmp) {
 }
 
 elemType mostPopular(bagADT bag) {
+    if (bag == NULL || bag->cantidadDistintos == 0)
+        exit(1);
     return bag->mostPopular->info.valor;
 }
 

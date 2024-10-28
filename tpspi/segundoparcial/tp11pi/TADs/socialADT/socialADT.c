@@ -108,7 +108,7 @@ char ** makeRelatedVector(const peopleList person) {
     char ** vector = malloc(sizeof(char *) * (person->relatedLen + 1));
     for (relatedList iterator = person->related; iterator != NULL; iterator = iterator->next, ++i) {
         vector[i] = malloc(strlen(iterator->name) + 1);
-        strcpy(vector[i], iterator->name);
+        strncpy(vector[i], iterator->name, MAX_NAME_LEN);
     }
     vector[i] = NULL;
     return vector;
@@ -135,7 +135,7 @@ char ** persons(const socialADT soc) {
     int i = 0;
     for (peopleList iterator = soc->localList; iterator != NULL; iterator = iterator->next, ++i) {
         peopleVector[i] = malloc(strlen(iterator->name) + 1);
-        strcpy(peopleVector[i], iterator->name);
+        strncpy(peopleVector[i], iterator->name, MAX_NAME_LEN);
     }
     peopleVector[i] = NULL;
     return peopleVector;

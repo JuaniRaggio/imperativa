@@ -4,6 +4,13 @@
 #include <assert.h>
 #include <stdio.h>
 
+void printVector(char ** vector) {
+    for (int i = 0; vector[i] != NULL; ++i) {
+        printf("%s\n", vector[i]);
+    }
+    printf("Se termino de printear el vector\n");
+}
+
 int main (void) {
 	socialADT soc = newSocial();
 	char ** rel;
@@ -23,7 +30,7 @@ int main (void) {
 	addRelated(soc, "juan", "pedro");
 	addRelated(soc, "juan", aux);
 	addRelated(soc, "juan", "juana");
-	char ** juanFriends = related(soc, "juan"); // juanFriends es {"ana", "juana", "pedro", NULL};
+	char ** juanFriends = related(soc, "juan"); // juanFriends es {"ana", "juana", "pedro", NULL}
 	assert( !strcmp(juanFriends[0], "ana") && !strcmp(juanFriends[1], "juana"));
 	assert( !strcmp(juanFriends[2], "pedro") && juanFriends[3] == NULL );
 	for(int i=0; juanFriends[i] != NULL; i++)

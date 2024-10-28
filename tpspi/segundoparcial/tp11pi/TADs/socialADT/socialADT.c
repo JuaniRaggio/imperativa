@@ -90,11 +90,14 @@ static relatedList addRelatedRec(relatedList related, const char * name) {
 
 void addRelated(socialADT soc, const char * name, const char * related) {
     peopleList iterator = soc->localList;
+    int cmp;
     while (iterator != NULL) {
-        if (strcasecmp(iterator->name, name) == 0) {
+        if ((cmp = strcasecmp(iterator->name, name)) == 0) {
             iterator->related = addRelatedRec(iterator->related, related);
             ++iterator->relatedLen;
             return;
+        } else if (cmp > 0) {
+            break;
         }
         iterator = iterator->next;
     }
@@ -113,9 +116,12 @@ char ** makeRelatedVector(const peopleList person) {
 
 char ** related(const socialADT soc, const char * person) {
     peopleList iterator = soc->localList;
+    int cmp;
     while (iterator != NULL) {
-        if (strcasecmp(iterator->name, person) == 0) {
+        if ((cmp = strcasecmp(iterator->name, person)) == 0) {
             return makeRelatedVector(iterator);
+        } else if (cmp > 0) {
+            break;
         }
         iterator = iterator->next;
     }

@@ -19,7 +19,7 @@ aliases:
 > [!NOTE] Aclaracion
 > Este es un archivo en el que anoto los razonamientos previos para plantear las structs de los TADs y/o las funciones. Pero *mas que nada como plantear las estructuras de datos para la eficiencia*
 
-## bagADT
+# bagADT
 ---
 - [[bagADT-draft|bagADT borrador]]
 - [[bagADT.h]]
@@ -115,7 +115,7 @@ struct elemCount {
 > [!NOTE] Porque *NO la opcion 4*
 > No tiene sentido retornar TODOS los elementos si solo queres los de N apariciones
 
-## socialADT
+# socialADT
 ---
 Se desea almacenar nombres de personas, y para cada persona los nombres de sus "allegados".
 
@@ -207,7 +207,7 @@ struct socialCDT {
 };
 ```
 
-## rankingADT
+# rankingADT
 ---
 Se desea implementar una colección que permita guardar elementos genéricos sin repeticiones. La colección se llamará *rankingADT*, ya que tiene la particularidad que tiene que servir para acceder fácilmente a los elementos que están al tope del ranking. Los elementos van "escalando posiciones" en el ranking a medida que son consultados.
 Si la colección tiene N elementos, se dice que el que está en el tope del ranking está en el puesto 1. El que está último en el ranking está en el puesto N del ranking.
@@ -265,6 +265,11 @@ int position(const rankingADT r, elemType elem);
 ```
 
 
+> [!NOTE] IMPORTANTE!!
+> Esta implementacion es muy rebuscada y las funciones se hacen muy complicadas. Puede hacerse para practicar pero Marcelo me dijo que no era necesario hacerlo asi.
+> Basta con hacer *un vector* que guarde los elementos del ranking y que los indices indiquen el rank en el que estan. Obiamente *idx = 0 <=> rank = 1*
+
+
 > [!NOTE] Lista vs Vector
 > - Notemos que todas las funciones menos para contains y position, nos conviene un vector ya que  buscamos acceder por indice y si queremos agregar, simplemente necesitamos guardar cual fue la ultima posicion que guardamos y lo guardamos al final. Siendo el elemento en [0] el mas alto, osea el de rank 1.
 > - Por otro lado para contains y position, nos conviene tener los elementos guardados en orden ascendente. De esta manera no tenemos que recorrer todo el vector para saber si un elemento esta o no en el ranking.
@@ -286,9 +291,116 @@ struct elementInfo {
 > [!NOTE] Porque vector de punteros a struct?
 > De esta forma, solo tenemos la cantidad de estructuras equivalente a la cantidad de elementos en el ranking y no las tenemos repetidas
 
+# listADT
+---
+Se desea implementar un TAD para listas de elementos *no repetidos*, que permita recorrerla con dos criterios: *en forma ascendente* o **por el orden de inserción de los elementos.**
+
+```c
+#ifndef __tp11_ej14_h_
+
+#define __tp11_ej14_h_
+
+typedef struct listCDT * listADT;
+ 
+typedef int elemType;  	// Tipo de elemento a insertar, por defecto int
+
+ 
+/* Retorna una lista vacía.
+*/
+listADT newList(int (*compare) (elemType e1, elemType e2));
+
+/* Agrega un elemento. Si ya estaba no lo agrega */
+void add(listADT list, elemType elem);
+
+/* Elimina un elemento. */
+void remove(listADT list, elemType elem);
+
+/* Resetea el iterador que recorre la lista en el orden de inserción */
+void toBegin(listADT list);
+
+/* Retorna 1 si hay un elemento siguiente en el iterador que
+** recorre la lista en el orden de inserción. Sino retorna 0 */
+int hasNext(listADT list);
+
+/* Retorna el elemento siguiente del iterador que recorre la lista en el orden de inserción. 
+** Si no hay un elemento siguiente o no se invocó a toBegin aborta la ejecución.
+*/
+elemType next(listADT list);
+
+/* Resetea el iterador que recorre la lista en forma ascendente */
+void toBeginAsc(listADT list);
+
+/* Retorna 1 si hay un elemento siguiente en el iterador que
+** recorre la lista en forma ascendente. Sino retorna 0 */
+int hasNextAsc(listADT list);
+
+/* Retorna el elemento siguiente del iterador que recorre la lista en forma ascendente. 
+** Si no hay un elemento siguiente o no se invocó a toBeginAsc aborta la ejecución.
+*/
+elemType nextAsc(listADT list);
+
+/* Libera la memoria reservada por la lista */
+void freeList(listADT list);
+
+
+#endif
+```
+
+
+> [!NOTE] Lista vs Vector
+> Se me habia ocurrido hacer un *vector de punteros a elemType y una lista ordenada ascendentemente*. De esta forma, el vector va a ser recorrido en orden de insercion mientras que si queremos recorrer ascendentemente, recorremos la lista.
+
+
+> [!NOTE] Pero
+> *La funcion remove* nos caga, porque si queremos borrar un elemento del vector y mantener el orden de insercion, tenemos que correr todos los elementos que le siguen al que vamos a borrar y no es eficiente
+
+
+> [!NOTE] Eso nos lleva a que
+> 1. La *lista ordenada* va a estar si o si.
+> 2. El vector queda *descartado* por lo que mencionamos anteriormente
+
+
+> [!NOTE] Conclusion
+> 1. Se pueden mantener dos listas, una en orden de insercion y otra en orden ascendente
+> 2. Se puede tener una sola lista, la cual tenga *4 punteros a nodo*
+> 	1. El nodo al siguiente ascendente
+> 	2. El nodo al anterior ascendente
+> 	3. El nodo al siguiente insertado
+> 	4. El nodo al anterior insertado
+
+
+> [!NOTE] Aclaracion
+> En esta materia no es necesario aprender double-linked lists asique no piden que hagamos la segunda solucion. La implementacion en la vida real seria mejor esa pero no es necesario, se puede hacer a modo de challange
+
+*Estructuras*
+```c
+struct node {
+  elemType value;
+  struct node * prevInsert;
+  struct node * nextInsert;
+  struct node * prevIncreasing;
+  struct node * nextIncreasing;
+};
+
+typedef struct node * header;
+
+typedef int (*fCompare)(elemType, elemType);
+
+struct listCDT {
+  header firstInc; // Es el primero de la lista ascendente
+  header firstAdded;
+  header lastAdded; // Es el ultimo agregado
+  header iteratorAdded;
+  header iteratorInc;
+  fCompare cmp;
+};
+
+```
+
+
 
 
 ## Doubts
 ---
-- *rankingADT* => No estoy seguro si la estructura esta bien
+- *rankingADT* => No estoy seguro si la estructura esta bien. Marcelo: "Esta bien para practicar pero es muy rebuscada, no es lo que esperamos"
 

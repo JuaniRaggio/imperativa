@@ -1,5 +1,6 @@
 #include "listADT.h"
 #include <stdlib.h>
+#include <assert.h>
 
 // Si bien puede parecer mas complicado, al tener una sola lista, basta con
 // borrar el nodo una sola vez, no es necesario tener que primero buscar si
@@ -23,7 +24,8 @@ struct listCDT {
   header firstInc; // Es el primero de la lista ascendente
   header firstAdded;
   header lastAdded; // Es el ultimo agregado
-  header iterator;
+  header iteratorAdded;
+  header iteratorInc;
   fCompare cmp;
 };
 
@@ -32,20 +34,21 @@ listADT newList(int (*compare) (elemType e1, elemType e2)) {
   new->firstInc = NULL;
   new->firstAdded = NULL;
   new->lastAdded = NULL;
-  new->iterator = NULL;
+  new->iteratorAdded = NULL;
+  new->iteratorInc = NULL;
   new->cmp = compare;
   return new;
 }
 
-header addListRec(header list, header lastAdded, fCompare cmp, elemType toAdd) {
+header addListRec(header list, header * lastAdded, fCompare cmp, elemType toAdd) {
   int comparison, isNull = list == NULL;
-  if (isNull || (comparison = cmp(list->value, toAdd) > 0)) {
+  if (isNull || (comparison = cmp(list->value, toAdd)) > 0) {
       header new = malloc(sizeof(*new));
       new->value = toAdd;
       new->nextIncreasing = list;
-      new->prevInsert = lastAdded;
-      if (lastAdded != NULL) lastAdded->nextInsert = new;
-      lastAdded = new;
+      new->prevInsert = *lastAdded;
+      if (*lastAdded != NULL) (*lastAdded)->nextInsert = new;
+      *lastAdded = new;
       // Como no hay mas despues, el siguiente va a ser NULL
       new->nextInsert = NULL;
       new->prevIncreasing = isNull ? NULL:list->prevIncreasing;
@@ -59,39 +62,37 @@ header addListRec(header list, header lastAdded, fCompare cmp, elemType toAdd) {
 
 void add(listADT list, elemType elem) {
   int modifyFirst = list->firstAdded == NULL;
-  list->firstInc = addListRec(list->firstInc, list->firstAdded, list->cmp, elem);
+  list->firstInc = addListRec(list->firstInc, &list->lastAdded, list->cmp, elem);
   if (modifyFirst) list->firstAdded = list->firstInc;
 }
 
 void toBegin(listADT list) {
-  list->iterator = list->firstAdded;
+  list->iteratorAdded = list->firstAdded;
 }
 
 int hasNext(listADT list) {
-  return list->iterator != NULL;
+  return list->iteratorAdded != NULL;
 }
 
 elemType next(listADT list) {
-  if (list->iterator == NULL)
-    exit(1);
-  elemType retValue = list->iterator->value;
-  list->iterator = list->iterator->nextIncreasing;
+  assert(list->iteratorAdded != NULL);
+  elemType retValue = list->iteratorAdded->value;
+  list->iteratorAdded = list->iteratorAdded->nextInsert;
   return retValue;
 }
 
 void toBeginAsc(listADT list) {
-  list->iterator = list->firstInc;
+  list->iteratorInc = list->firstInc;
 }
 
 int hasNextAsc(listADT list) {
-  return list->iterator != NULL;
+  return list->iteratorInc != NULL;
 }
 
 elemType nextAsc(listADT list) {
-  if (list->iterator == NULL)
-    exit(1);
-  elemType retValue = list->iterator->value;
-  list->iterator = list->iterator->nextIncreasing;
+  assert(list->iteratorInc != NULL);
+  elemType retValue = list->iteratorInc->value;
+  list->iteratorInc = list->iteratorInc->nextIncreasing;
   return retValue;
 }
 

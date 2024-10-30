@@ -43,7 +43,7 @@ main(void) {
    n = nextAsc(c);     // n = 5
    assert(n==5);
 
-   assert(! hasNextAsc(c));
+   assert(!hasNextAsc(c));
 
    freeListPrime(c);
 

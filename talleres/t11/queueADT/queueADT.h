@@ -17,5 +17,12 @@ int isEmpty(queueADT q);
  
 void freeQueue(queueADT q);
 
+// Esto es parte del taller 12
+void toBegin(queueADT q);
+
+int hasNext(queueADT q);
+
+elementType next(queueADT q);
+
 #endif
 

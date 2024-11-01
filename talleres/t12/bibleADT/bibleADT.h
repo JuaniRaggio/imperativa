@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 typedef struct bibleCDT * bibleADT;
-bibleADT newBible();
+bibleADT newBible(void);
 /*
 ** Agrega un versículo a la Biblia. Si ya estaba ese número de versículo en ese
 ** número de libro, no lo agrega ni modifica y retorna 0. Si lo agregó retorna 1

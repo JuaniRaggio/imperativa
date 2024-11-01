@@ -15,41 +15,56 @@ struct bibleCDT {
     tBook books[BOOKS_IN_BIBLE];
 };
 
-bibleADT newBible() {
+bibleADT newBible(void) {
     return calloc(1, sizeof(struct book));
 }
 
 // En estas funciones que tenemos que hacer muchas operaciones sobre un campo especifico del ADT
 // es conveniente hacer al principio un puntero a ese que queremos usar, en este caso a un book
 // y accedemos directo a los campos del book
-// Porque sino te pasa lo que me paso a mi jajaja
+// Porque sino queda poco legible
 int addVerse(bibleADT bible, size_t bookNbr, size_t verseNbr, const char * verse) {
-    struct book * aux = &bible->books[bookNbr - 1];
-    if (bible->books[bookNbr - 1].space == 0) bible->books[bookNbr - 1].verses = NULL;
-    if (bible->books[bookNbr - 1].verses[verseNbr - 1] != NULL) return 0;
-    if (bible->books[bookNbr - 1].space < verseNbr) {
-        bible->books[bookNbr - 1].verses = 
-            realloc(bible->books[bookNbr - 1].verses, sizeof(bible->books[bookNbr - 1].verses) * (verseNbr - 1));
-        while (bible->books[bookNbr - 1].space < verseNbr) {
-            bible->books[bookNbr - 1].verses[bible->books[bookNbr - 1].space++] = NULL;
+    tBook * bookToModify = &bible->books[bookNbr - 1];
+    if (bookToModify->space < verseNbr) {
+        bookToModify->verses = realloc(bookToModify->verses, sizeof(bookToModify->verses) * verseNbr);
+        while (bookToModify->space < verseNbr) {
+            bookToModify->verses[bookToModify->space++] = NULL;
         }
+    } else if (bookToModify->verses[verseNbr - 1] != NULL) {
+        return 0;
     }
-    int i = 0;
+    size_t i = 0;
     while (verse[i] != '\0') {
         if (i % BLOCK == 0) {
-            bible->books[bookNbr - 1].verses[verseNbr - 1] 
-                = realloc(bible->books[bookNbr - 1].verses[verseNbr - 1], sizeof(bible->books[bookNbr - 1].verses[verseNbr - 1]) * (i + BLOCK));
+            bookToModify->verses[verseNbr - 1] = realloc(bookToModify->verses[verseNbr - 1], i + BLOCK);
         }
-        bible->books[bookNbr - 1].verses[verseNbr - 1][i] = verse[i];
-        ++i;
+        bookToModify->verses[verseNbr - 1][i] = verse[i];
+        i++;
     }
-    bible->books[bookNbr - 1].verses[verseNbr - 1] 
-        = realloc(bible->books[bookNbr - 1].verses[verseNbr - 1], sizeof(bible->books[bookNbr - 1].verses[verseNbr - 1]) * i);
+    bookToModify->verses[verseNbr - 1][i++] = '\0';
+    bookToModify->verses[verseNbr - 1] = realloc(bookToModify->verses[verseNbr - 1], i);
     return 1;
 }
 
+char * verseCopy(char * verse) {
+    char * copy = NULL;
+    int i;
+    for (i = 0; verse[i] != '\0'; ++i) {
+        if (i % BLOCK == 0) {
+            copy = realloc(copy, sizeof(*copy) * (i + BLOCK));
+        }
+        copy[i] = verse[i];
+    }
+    copy[i++] = '\0';
+    copy = realloc(copy, sizeof(*copy) * i);
+    return copy;
+}
+
 char * getVerse(bibleADT bible, size_t bookNbr, size_t verseNbr) {
-    char * retVerse = NULL;
+    if (bible->books[bookNbr - 1].verses == NULL || bible->books[bookNbr - 1].verses[verseNbr - 1] == NULL) {
+        return NULL;
+    }
+    return verseCopy(bible->books[bookNbr - 1].verses[verseNbr - 1]);
 }
 
 void freeBible(bibleADT bible) {

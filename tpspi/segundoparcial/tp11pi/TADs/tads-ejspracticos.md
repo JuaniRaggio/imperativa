@@ -19,6 +19,8 @@ aliases:
 > [!NOTE] Aclaracion
 > Este es un archivo en el que anoto los razonamientos previos para plantear las structs de los TADs y/o las funciones. Pero *mas que nada como plantear las estructuras de datos para la eficiencia*
 
+> [!NOTE] IMPORTANTISIMO PARA LOS TADS JODIDOS
+> Para las funciones que tenemos tads muy complejos, es muy recomendable hacer un puntero a lo que queremos modificar y acceder desde ahi, sino las funciones se nos hacen un choclo
 # bagADT
 ---
 - [[bagADT-draft|bagADT borrador]]
@@ -397,6 +399,97 @@ struct listCDT {
 
 ```
 
+# addressBookADT
+---
+Se desea mantener una lista de contactos, (addressBook)
+Por cada contacto se guarda únicamente su nombre y número de teléfono.
+Cada contacto estará dentro de un grupo, y cada grupo se identifica únicamente por su nombre.
+No puede haber dos grupos con el mismo nombre, sin diferenciar entre mayúsculas y minúsculas (el grupo "personal" es el mismo que "Personal",
+"PERSONAL", etc.)
+Dentro de un grupo no puede haber dos contactos con el mismo nombre (tampoco diferencia entre mayúsculas y minúsculas), pero sí puede repetirse entre distintos grupos, por ejemplo tanto el grupo "PERSONAL" como "INDESEABLES" puede tener a "James" como contacto.
+
+```c
+typedef struct tContact {
+    char * name;
+    char * phoneNumber;
+} tContact;
+
+typedef struct addressBookCDT * addressBookADT;
+
+/* Crea un nuevo TAD vacÃ­o */
+addressBookADT newAddressBook(void);
+
+/* Almacena un nuevo grupo de contactos. Si el grupo existe, no hace nada.
+** No diferencia entre minÃºsculas y mayÃºsculas, el grupo "abc" es el mismo que "ABC",
+** "Abc", etc. pero distinto que " abc" o "abc "
+** Almacena una copia del nombre, que no tiene un lÃ­mite para su longitud
+*/
+int addGroup(addressBookADT, const char * groupName);
+
+/* Si existe un grupo de nombre groupName, agrega el contacto contact a la agenda
+** Si el grupo no existe, no hace nada
+** Si el contact ya estaba relacionado al grupo (habÃ­a uno con el mismo nombre),
+** no lo agrega
+*/
+int addContact(addressBookADT, const char * groupName, tContact contact);
+
+/*
+** Permite iterar por todos los contactos de la agenda
+** QUE PERTENEZCAN AL GRUPO INDICADO por parÃ¡metro en toBegin
+** El orden es alfabÃ©tico por nombre del contacto.
+*/
+void toBeginForGroup(addressBookADT, const char * groupName);
+
+int hasNextForGroup(addressBookADT);
+
+/* Retorna un contacto, aborta si no hay siguiente */
+tContact nextForGroup(addressBookADT);
+
+/*
+** Permite iterar por todos los grupos de la agenda
+** El orden es alfabÃ©tico por nombre del grupo.
+*/
+void toBegin(addressBookADT);
+
+int hasNext(addressBookADT);
+
+/* Retorna una copia del grupo, aborta si no hay siguiente */
+char * next(addressBookADT);
+```
+
+
+> [!NOTE] Notemos que
+> Tanto los *grupos* como los *contactos* no pueden estar repetidos, por lo que vamos a querer tenerlos ordenados a ambos. Entonces si o si los grupos van a ser una lista y cada grupo va a tener su lista de contactos.
+> Entonces vamos a hacer una lista de listas.
+
+```c
+struct contactList {
+    tContact contact;
+    struct contactList * next;
+};
+
+typedef struct contactList * contactsHeader;
+
+struct groupList {
+    char * groupName;
+    contactsHeader people;
+    struct groupList * next;
+};
+
+typedef struct groupList * groupsHeader;
+
+struct addressBookCDT {
+    groupsHeader groups;
+    struct groupList * iteratorForGroups;
+    struct contactList * iteratorForContacts;
+};
+```
+
+
+> [!NOTE] Ademas
+> Necesitamos los iteradores.
+> 1. *iteratorForGroups* es para las funciones que quieren recorrer los nombres de los grupos
+> 2. *iteratorForContacts* es para las funciones que quieren recorrer los contactos dentro de un grupo en especial
 
 
 

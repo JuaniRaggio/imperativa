@@ -16,7 +16,7 @@ struct bibleCDT {
 };
 
 bibleADT newBible(void) {
-    return calloc(1, sizeof(struct book));
+    return calloc(1, sizeof(struct bibleCDT));
 }
 
 // En estas funciones que tenemos que hacer muchas operaciones sobre un campo especifico del ADT
@@ -72,6 +72,7 @@ void freeBible(bibleADT bible) {
         for (int j = 0; j < bible->books[i].space; ++j) {
             free(bible->books[i].verses[j]);
         }
+        free(bible->books[i].verses);
     }
     free(bible);
 }

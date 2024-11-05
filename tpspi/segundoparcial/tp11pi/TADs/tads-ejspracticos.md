@@ -492,6 +492,149 @@ struct addressBookCDT {
 > 2. *iteratorForContacts* es para las funciones que quieren recorrer los contactos dentro de un grupo en especial
 
 
+# moveToFrontADT
+---
+Se desea guardar una colección de elementos *no repetidos*, en la cual los elementos más "populares" (los que más se consultan) estén al principio de la colección. De esta forma, será más rápido acceder a los elementos que más veces se consulten. Para ello se definió que el conjunto de datos opere de la siguiente forma:
+
+- Cuando se inserta un elemento (no repetido) se lo inserta al final
+- Cuando se consulta un elemento (con la función get) el mismo es enviado al principio de la colección 
+El contrato con el TAD es el siguiente:
+
+```c
+typedef struct moveToFrontCDT * moveToFrontADT;
+
+typedef ... elemType;  // Tipo de elemento a insertar
+
+/* Retorna un nuevo conjunto de elementos genéricos. Al inicio está vacío 
+** La función compare retorna 0 si los elementos son iguales, negativo si e1 es 
+** "menor" que e2 y positivo si e1 es "mayor" que e2
+*/
+
+moveToFrontADT newMoveToFront(int (*compare) (elemType e1, elemType e2));
+
+  
+
+/* Libera todos los recursos del TAD */
+void freeMoveToFront(moveToFrontADT m);
+
+/* Inserta un elemento si no está. Lo inserta al final.
+** Retorna 1 si lo agregó, 0 si no.
+*/
+unsigned int add(moveToFrontADT moveToFront, elemType elem);
+
+/* Retorna la cantidad de elementos que hay en la colección */
+unsigned int size(moveToFrontADT moveToFront);
+
+/* Se ubica al principio del conjunto, para poder iterar sobre el mismo */
+void toBegin(moveToFrontADT moveToFront);
+
+  
+
+/* Retorna 1 si hay un elemento siguiente en el iterador, 0 si no */
+int hasNext(moveToFrontADT moveToFront);
+
+  
+
+/* Retorna el siguiente elemento. Si no hay siguiente elemento, aborta */
+elemType next(moveToFrontADT moveToFront);
+
+/* Retorna una copia del elemento. Si no existe retorna NULL.
+** Para saber si el elemento está, usa la función compare. 
+** Si el elemento estaba lo ubica al principio.
+*/
+elemType * get(moveToFrontADT moveToFront, elemType elem);
+```
+
+
+> [!NOTE] Hay dos opciones
+> 1. Hacer dos listas.
+> 	1. Manteniendo el orden ascendente para ver cuando agregamos elementos
+> 	2. Manteniendo el orden de consulta. Si consultan un elemento, pasa a ser el primero de esta lista pero no cambia el orden de la primer lista
+> 2. Hacer una lista. Dentro de la misma vamos a tener un puntero al siguiente ascendente y un puntero al siguiente en popularidad. El CDT va a tener un puntero al primero en orden ascendente y un puntero al primero de popularidad. Si hubiese una funcion delete, necesitariamos tener un puntero al anterior en orden asc y un puntero al anterior en popularidad.
+
+
+# phrasesADT
+---
+Se desea crear un TAD que dé soporte para almacenar y recuperar frases, donde cada frase tiene asociada una clave numérica (un valor entero positivo). Las claves son únicas (no puede haber dos frases con la misma clave, aunque sí podría pasar que dos claves tengan la misma frase).
+
+Para ello se crea el siguiente contrato, y se cuenta además con un programa de prueba (leer completamente ambos antes de implementar el TAD).
+
+No hay un límite previsto para la longitud de cada frase, pueden ser unos pocos o miles de caracteres.
+
+*Se espera que casi todas las claves estén usadas.* => Podemos crear un vector de una. Desde keyFrom siendo el indice 0 y keyTo el ultimo indice
+
+```c
+#ifndef __phrasesADT__
+#define __phrasesADT__
+
+#include <stdio.h>
+
+typedef struct phrasesCDT * phrasesADT;
+
+// Necesitamos tener dentro de nuestra estructura, el intervalo de claves valido
+/*
+* Recibe cuál será el rango de claves válidas a utilizar, por ejemplo si
+* keyFrom=1001, keyTo=1500 habrá un máximo de 500 frases a almacenar
+* keyFrom=1001, keyTo=3500 habrá un máximo de 2500 frases a almacenar
+* Si los parámetros son inválidos retorna NULL
+*/
+phrasesADT newPhrasesADT(size_t keyFrom, size_t keyTo);
+
+/* Libera toda la memoria reservada por el TAD */
+void freePhrases(phrasesADT ph);
+
+// Para la funcion put notemos que necesitamos guardar cuanto espacio se guardo para la frase
+/*
+* Agrega una frase. Si la clave key es inválida retorna 0, sinó retorna 1 (uno)
+* Si ya hay una frase asociada a la clave, actualiza la frase almacenada,
+* reemplazándola por el parámetro phrase.
+* Se almacena una copia de la frase.
+*/
+int put(phrasesADT ph, size_t key, const char * phrase);
+
+/*
+* Retorna una copia de la frase asociada a la clave key. Si no hay frase asociada
+* a la clave key retorna NULL, lo mismo si la clave es inválida.
+*/
+char * get(const phrasesADT ph, size_t key);
+
+/*
+* Cantidad de frases almacenadas
+*/
+size_t size(const phrasesADT ph);
+
+/*
+* Retorna un string con todas las frases concatenadas 
+* Si no hay frases retorna un string vacío
+*/
+char * concatAll(const phrasesADT ph);
+
+/*
+* Retorna un string con todas las frases concatenadas cuyas claves estén entre
+* from y to inclusive. Si from o to son inválidas (están fuera del rango)
+* retorna NULL
+* Si no hay frases en ese rango, retorna un string vacío
+*/
+char * concat(const phrasesADT ph, size_t from, size_t to);
+
+#endif
+
+```
+
+```c
+struct phrase {
+    // Si no esta ocupada la phrase, text == NULL
+    char * text;
+    size_t textLen;
+};
+
+struct phrasesCDT {
+    size_t keyFrom;
+    size_t keyTo;
+    size_t ocupied;
+    struct phrase * phrasesCollection;
+};
+```
 
 ## Doubts
 ---

@@ -4,20 +4,17 @@
 // Esto lo estoy haciendo asi porque dicen que es una lista sin header
 // Pero yo lo haria con header y que sea null si esta vacia
 struct polyCDT {
-    char isEmpty;
     int degree;
     float coef;
     struct polyCDT * next;
 };
 
 polyADT newPolynomial(void) {
-    polyADT new = calloc(1, sizeof(struct polyCDT));
-    new->isEmpty = 1;
-    return new;
+    return NULL;
 }
 
 int isEmpty(polyADT poly) {
-    return poly->isEmpty;
+    return poly == NULL;
 }
 
 polyADT addTermRec(polyADT poly, float coef, int degree, int * added) {
@@ -37,9 +34,6 @@ polyADT addTermRec(polyADT poly, float coef, int degree, int * added) {
 }
 
 int addTerm(polyADT *poly, float coef, int degree) {
-    if (*poly == NULL) {
-        return 0;
-    }
     int added = 0;
     *poly = addTermRec(*poly, coef, degree, &added);
     return added;
@@ -47,7 +41,7 @@ int addTerm(polyADT *poly, float coef, int degree) {
 
 polyADT addPolynomialRec(polyADT p, polyADT q) {
     if (p != NULL && q != NULL) {
-        polyADT new = calloc(1, sizeof(*new));
+        polyADT new = malloc(sizeof(*new));
         if (p->degree > q->degree) {
             new->degree = p->degree;
             new->coef = p->coef;
@@ -61,15 +55,16 @@ polyADT addPolynomialRec(polyADT p, polyADT q) {
         }
         new->degree = p->degree;
         new->coef = p->coef + q->coef;
+        new->next = addPolynomialRec(p->next, q->next);
         return new;
     } else if (p != NULL) {
-        polyADT new = calloc(1, sizeof(*new));
+        polyADT new = malloc(sizeof(*new));
         new->degree = p->degree;
         new->coef = p->coef;
         new->next = addPolynomialRec(p->next, q);
         return new;
     } else if (q != NULL) {
-        polyADT new = calloc(1, sizeof(*new));
+        polyADT new = malloc(sizeof(*new));
         new->degree = q->degree;
         new->coef = q->coef;
         new->next = addPolynomialRec(p, q->next);
@@ -79,7 +74,7 @@ polyADT addPolynomialRec(polyADT p, polyADT q) {
 }
 
 polyADT addPolynomial(polyADT p, polyADT q) {
-    if ((p == NULL && q == NULL) || (p->isEmpty && q->isEmpty))
+    if (p == NULL && q == NULL)
         return NULL;
     return addPolynomialRec(p, q);
 }

@@ -636,6 +636,64 @@ struct phrasesCDT {
 };
 ```
 
+# polyADT
+---
+El enunciado nos dice practicamente como es la estructura. Que sea sin header quiere decir que el polyCDT va a ser un nodo y que dentro de el vamos a tener un next.
+
+> [!NOTE] Importante a tener en cuenta. Me equivoque en esto
+> Si tenemos una lista sin header es exactamente igual que la lista con header solo que el CDT en si va a ser el primer nodo. *Por lo que si queremos crear un polyCDT vacio, con devolver NULL ya estaria.*
+> Yo lo que habia hecho era crear un campo "isEmpty" dentro del CDT pero no tiene sentido porque tendriamos un isEmpty para todos los nodos y no es lo que queremos
+> Entonces para saber si una lista sin header esta vacia, basta preguntar si el primer nodo es NULL, *listeralmente igual que en las listas con header*
+
+```c
+#ifndef PI_POLYADT_H
+#define PI_POLYADT_H
+
+/*
+ * Se cuenta con un TAD polinomio el cual implementa cada polinomio como una lista simplemente
+ * encadenada sin header ordenada en forma descendente por el grado de la variable. El contrato para el TAD
+ * poliniomio es el siguiente:
+ *
+ *   polinomio: (10, 5) -> (3, 6) -> (0, 1)
+ *   polinomio: sum(a_i * x^i)_0^i
+ *
+ * Se pide:
+ *  1) Definir struct polyCDT
+ *  2) Implementar la funcion addPolynomial
+ * */
+
+typedef struct polyCDT * polyADT;
+
+/*
+ *  Retorna un polinomio vacio ( NULL )
+ * */
+polyADT newPolynomial(void);
+
+
+/*
+ *  Retorna 1 si el polinomio esta vacio
+ *          0 en caso contrario
+ * */
+int isEmpty(polyADT poly);
+
+/*
+ *  Agrega un término al polinomio con el coeficiente y grado.
+ *  Se inserta ordenado por grado, en forma decreciente.
+ *  Si ya existe un termino con ese grado o no se pudo agregar retorna cero.
+ *  Si no existia y se pudo agregar, retorna uno.
+ * */
+int addTerm(polyADT *poly, float coef, int degree);
+
+/*
+ * Suma los polinomios enviados como parametro y obtiene un nuevo polinomio.
+ * En caso de error retorna NULL
+ * */
+polyADT addPolynomial(polyADT p, polyADT q);
+
+#endif //PI_POLYADT_H
+
+```
+
 ## Doubts
 ---
 - *rankingADT* => No estoy seguro si la estructura esta bien. Marcelo: "Esta bien para practicar pero es muy rebuscada, no es lo que esperamos"

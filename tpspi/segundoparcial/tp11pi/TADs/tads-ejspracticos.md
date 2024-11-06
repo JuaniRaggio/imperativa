@@ -374,6 +374,7 @@ void freeList(listADT list);
 > [!NOTE] Aclaracion
 > En esta materia no es necesario aprender double-linked lists asique no piden que hagamos la segunda solucion. La implementacion en la vida real seria mejor esa pero no es necesario, se puede hacer a modo de challange
 
+
 *Estructuras*
 ```c
 struct node {
@@ -495,7 +496,6 @@ struct addressBookCDT {
 # moveToFrontADT
 ---
 Se desea guardar una colección de elementos *no repetidos*, en la cual los elementos más "populares" (los que más se consultan) estén al principio de la colección. De esta forma, será más rápido acceder a los elementos que más veces se consulten. Para ello se definió que el conjunto de datos opere de la siguiente forma:
-
 - Cuando se inserta un elemento (no repetido) se lo inserta al final
 - Cuando se consulta un elemento (con la función get) el mismo es enviado al principio de la colección 
 El contrato con el TAD es el siguiente:
@@ -561,7 +561,9 @@ Para ello se crea el siguiente contrato, y se cuenta además con un programa de 
 
 No hay un límite previsto para la longitud de cada frase, pueden ser unos pocos o miles de caracteres.
 
-*Se espera que casi todas las claves estén usadas.* => Podemos crear un vector de una. Desde keyFrom siendo el indice 0 y keyTo el ultimo indice
+> [!NOTE] Como lo encaramos?
+> *Se espera que casi todas las claves estén usadas.* => Podemos crear un vector de una. Desde keyFrom siendo el indice 0 y keyTo el ultimo indice valido => Nos vamos a tener que guardar estos keyFrom y keyTo para poder determinar si el key que nos pasa el usuario es valido
+
 
 ```c
 #ifndef __phrasesADT__
@@ -694,7 +696,17 @@ polyADT addPolynomial(polyADT p, polyADT q);
 
 ```
 
+# skipListADT
+---
+Una Skip-list es una lista donde cada nodo, en vez de tener una referencia al nodo siguiente, tiene un vector de referencias, donde el elemento 0 contiene una referencia al siguiente nodo, pero los elementos siguientes tienen referencias a nodos que están más "lejanos". Para determinar el tamaño de ese vector de referencias se basa en la probabilidad. El resultado es una lista que empíricamente tiene un orden logarítmico para todas las funciones.
+
+La altura de una skip-list está dada por la mayor dimensión del vector de referencias.
+
+Crear un TAD que -dada una altura máxima- implemente una skip-list que permita mantener elementos ordenados, aceptando repetidos, y que también permita saber si un elemento está o no en la lista, y recorrerla con un iterador.
+
+- [[skiplists.pdf|Presentacion de como funcionan las skipLists]]
+
 ## Doubts
 ---
 - *rankingADT* => No estoy seguro si la estructura esta bien. Marcelo: "Esta bien para practicar pero es muy rebuscada, no es lo que esperamos"
-
+- Si quiero *swapear elementos en una lista*, me conviene swapear los elementos y no los punteros

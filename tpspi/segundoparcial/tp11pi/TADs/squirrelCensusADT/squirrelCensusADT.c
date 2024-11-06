@@ -26,11 +26,13 @@ squirrelCensusADT newSquirrelCensus(size_t blockSizeMeters) {
     return newPark;
 }
 
+
 void reCalloc(void ** ptr, size_t sizePtr, size_t oldSize, size_t newSize) {
     if (oldSize >= newSize) return;
     *ptr = realloc(*ptr, sizePtr * newSize);
     memset((char *)*ptr + oldSize * sizePtr, 0, (newSize - oldSize) * sizePtr);
 }
+
 
 size_t countSquirrel(squirrelCensusADT squirrelAdt, size_t yDistance, size_t xDistance) {
     if (yDistance < 0 || xDistance < 0) 
@@ -45,6 +47,21 @@ size_t countSquirrel(squirrelCensusADT squirrelAdt, size_t yDistance, size_t xDi
         squirrelAdt->park[yDistance/squirrelAdt->blockSize].xSize = xDistance/squirrelAdt->blockSize + 1;
     }
     return ++squirrelAdt->park[yDistance/squirrelAdt->blockSize].squares[xDistance/squirrelAdt->blockSize].squirrels;
+}
+
+
+size_t squirrelsInBlock(const squirrelCensusADT squirrelAdt, size_t yDist, size_t xDist) {
+    size_t yAxe = yDist/squirrelAdt->blockSize, xAxe = xDist/squirrelAdt->blockSize;
+    return yAxe < squirrelAdt->ySize && xAxe < squirrelAdt->park[yAxe].xSize ? squirrelAdt->park[yAxe].squares[xAxe].squirrels:0;
+}
+
+
+void freeSquirrelCensus(squirrelCensusADT squirrelAdt) {
+    for (int i = 0; i < squirrelAdt->ySize; ++i) {
+        free(squirrelAdt->park[i].squares);
+    }
+    free(squirrelAdt->park);
+    free(squirrelAdt);
 }
 
 
@@ -65,19 +82,4 @@ size_t countSquirrel(squirrelCensusADT squirrelAdt, size_t yDistance, size_t xDi
 /*     } */
 /*     return ++squirrelAdt->park[yAxe].squares[xAxe].squirrels; */
 /* } */
-
-size_t squirrelsInBlock(const squirrelCensusADT squirrelAdt, size_t yDist, size_t xDist) {
-    size_t yAxe = yDist/squirrelAdt->blockSize, xAxe = xDist/squirrelAdt->blockSize;
-    return yAxe < squirrelAdt->ySize && xAxe < squirrelAdt->park[yAxe].xSize ? squirrelAdt->park[yAxe].squares[xAxe].squirrels:0;
-}
-
-
-void freeSquirrelCensus(squirrelCensusADT squirrelAdt) {
-    for (int i = 0; i < squirrelAdt->ySize; ++i) {
-        free(squirrelAdt->park[i].squares);
-    }
-    free(squirrelAdt->park);
-    free(squirrelAdt);
-}
-
 

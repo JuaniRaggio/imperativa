@@ -4,8 +4,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-typedef struct moveToFrontCDT * moveToFrontADT;
-
 static int compareStruct (elemType e1, elemType e2) {
    	return e1.code - e2.code;
 }
